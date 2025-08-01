@@ -1,0 +1,82 @@
+{
+  "name": "plugin-connections",
+  "version": "1.0.0",
+  "description": "Connection management plugin for Twitter authentication and other services",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mascotai/plugin-connections.git"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --noEmit && vite build && tsup",
+    "build:backend": "tsup",
+    "build:frontend": "vite build",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "test": "bun test src/__tests__/"
+  },
+  "peerDependencies": {
+    "@elizaos/core": "*",
+    "@elizaos/plugin-sql": "*"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.0.0",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.37.0",
+    "lru-cache": "^11.0.0",
+    "lucide-react": "^0.525.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwind-merge": "^3.3.1",
+    "twitter-auth": "^0.0.7",
+    "zod": "3.24.2"
+  },
+  "keywords": [
+    "elizaos",
+    "elizaos-plugin",
+    "plugin",
+    "twitter",
+    "authentication",
+    "connections"
+  ],
+  "author": "Mascot AI",
+  "license": "MIT",
+  "agentConfig": {
+    "actions": [],
+    "providers": [],
+    "evaluators": [],
+    "models": [],
+    "services": [
+      "auth",
+      "database"
+    ],
+    "pluginType": "elizaos:plugin:1.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11",
+    "vite": "^7.0.5"
+  },
+  "packageType": "plugin",
+  "platform": "node",
+  "npmPackage": "plugin-connections"
+}

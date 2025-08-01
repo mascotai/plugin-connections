@@ -1,0 +1,307 @@
+@import "tailwindcss";
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  --card: 0 0% 93%;
+  --card-foreground: 240 10% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
+  --primary: 240 5.9% 10%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 5.9% 10%;
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  --accent: 240 4.8% 97%;
+  --accent-foreground: 240 5.9% 10%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --ring: 240 5.9% 10%;
+  --radius: 1rem;
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+
+.dark {
+  --background: 0 0% 9%;
+  --foreground: 0 0% 98%;
+  --card: 0 0% 12%;
+  --card-foreground: 0 0% 98%;
+  --popover: 0 0% 14%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 0 0% 98%;
+  --primary-foreground: 0 0% 10%;
+  --secondary: 0 0% 16%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 0 0% 16%;
+  --muted-foreground: 0 0% 64%;
+  --accent: 0 0% 16%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 20%;
+  --input: 0 0% 14%;
+  --ring: 0 0% 83.9%;
+  --sidebar-background: 0 0% 12%;
+  --sidebar-foreground: 0 0% 95%;
+  --sidebar-primary: 224.3 76.3% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 0 0% 16%;
+  --sidebar-accent-foreground: 0 0% 95%;
+  --sidebar-border: 0 0% 20%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+    outline-color: hsl(var(--ring) / 0.5);
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer utilities {
+  .border-border {
+    border-color: hsl(var(--border));
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Background utilities */
+  .bg-card {
+    background-color: hsl(var(--card));
+  }
+  .bg-muted {
+    background-color: hsl(var(--muted));
+  }
+  .bg-muted\/50 {
+    background-color: hsl(var(--muted) / 0.5);
+  }
+  .bg-accent\/5 {
+    background-color: hsl(var(--accent) / 0.05);
+  }
+  .bg-accent {
+    background-color: hsl(var(--accent));
+  }
+
+  /* Text utilities */
+  .text-muted-foreground {
+    color: hsl(var(--muted-foreground));
+  }
+  .text-accent-foreground {
+    color: hsl(var(--accent-foreground));
+  }
+
+  /* Hover utilities */
+  .hover\:bg-accent:hover {
+    background-color: hsl(var(--accent));
+  }
+  .hover\:text-accent-foreground:hover {
+    color: hsl(var(--accent-foreground));
+  }
+}
+
+/* Component styles matching ElizaOS client */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 outline-none cursor-pointer;
+}
+
+.btn-primary {
+  @apply shadow-sm;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.btn-primary:hover {
+  background-color: hsl(var(--primary) / 0.9);
+}
+
+.btn-secondary {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+
+.btn-secondary:hover {
+  background-color: hsl(var(--secondary) / 0.8);
+}
+
+.btn-destructive {
+  background-color: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+}
+
+.btn-destructive:hover {
+  background-color: hsl(var(--destructive) / 0.9);
+}
+
+.btn-outline {
+  @apply border;
+  border-color: hsl(var(--border));
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.btn-outline:hover {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: hsl(var(--foreground));
+}
+
+.btn-ghost:hover {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.btn-sm {
+  @apply h-8 rounded-md px-3 text-xs;
+}
+
+.btn-lg {
+  @apply h-10 rounded-md px-8;
+}
+
+.card {
+  @apply rounded-lg border shadow-sm;
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-color: hsl(var(--border));
+}
+
+.card-header {
+  @apply flex flex-col space-y-1.5 rounded-t-lg p-6;
+}
+
+.card-title {
+  @apply text-2xl font-semibold leading-none tracking-tight;
+}
+
+.card-description {
+  @apply text-sm;
+  color: hsl(var(--muted-foreground));
+}
+
+.card-content {
+  @apply p-6 pt-0;
+}
+
+.card-footer {
+  @apply flex items-center p-6 pt-0;
+}
+
+.input {
+  @apply flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  border-color: hsl(var(--border));
+  background-color: hsl(var(--input));
+  color: hsl(var(--foreground));
+}
+
+.input::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+.input:focus-visible {
+  ring-color: hsl(var(--ring));
+}
+
+.badge {
+  @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.badge:focus {
+  ring-color: hsl(var(--ring));
+}
+
+.badge-default {
+  @apply border-transparent;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.badge-default:hover {
+  background-color: hsl(var(--primary) / 0.8);
+}
+
+.badge-secondary {
+  @apply border-transparent;
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+
+.badge-secondary:hover {
+  background-color: hsl(var(--secondary) / 0.8);
+}
+
+.badge-destructive {
+  @apply border-transparent;
+  background-color: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+}
+
+.badge-destructive:hover {
+  background-color: hsl(var(--destructive) / 0.9);
+}
+
+.badge-outline {
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--border));
+}
+
+.spinner {
+  @apply animate-spin rounded-full border-2 border-t-transparent;
+  border-color: hsl(var(--foreground));
+  border-top-color: transparent;
+}
+
+.loading-dots {
+  @apply flex space-x-1;
+}
+
+.loading-dots > div {
+  @apply w-1.5 h-1.5 bg-current rounded-full animate-pulse;
+}
+
+.status-badge {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-connected {
+  @apply bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800;
+}
+
+.status-disconnected {
+  @apply bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800;
+}
+
+.status-pending {
+  @apply bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
+}

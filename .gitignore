@@ -1,0 +1,18 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# Environment variables
+.env
+
+# Eliza files
+.eliza
+
+# Images
+ssss.png
+Untitled 20.png
+
+# Plan file
+plan-twitter-auth.md

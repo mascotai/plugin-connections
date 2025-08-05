@@ -1,4 +1,4 @@
-import { starterPlugin } from './plugin.ts';
-
-export { starterPlugin, StarterService } from './plugin.ts';
-export default starterPlugin;
+export { default } from "./plugin";
+export * from "./types/auth.types";
+export { AuthService } from "./services/auth.service";
+export { DatabaseService } from "./services/database.service";

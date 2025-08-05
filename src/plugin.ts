@@ -1,284 +1,160 @@
-import type {
-  Action,
-  ActionResult,
-  Content,
-  GenerateTextParams,
-  HandlerCallback,
-  IAgentRuntime,
-  Memory,
-  Plugin,
-  Provider,
-  ProviderResult,
-  State,
-} from '@elizaos/core';
-import { ModelType, Service, logger } from '@elizaos/core';
-import { z } from 'zod';
-import { StarterPluginTestSuite } from './tests';
+import type { Plugin, IAgentRuntime } from "@elizaos/core";
+import { logger } from "@elizaos/core";
+import { schema } from "./schema";
+import { routes } from "./routes";
+import { AuthService } from "./services/auth.service";
+import { DatabaseService } from "./services/database.service";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-/**
- * Defines the configuration schema for a plugin, including the validation rules for the plugin name.
- *
- * @type {import('zod').ZodObject<{ EXAMPLE_PLUGIN_VARIABLE: import('zod').ZodString }>}
- */
-const configSchema = z.object({
-  EXAMPLE_PLUGIN_VARIABLE: z
-    .string()
-    .min(1, 'Example plugin variable is not provided')
-    .optional()
-    .transform((val) => {
-      if (!val) {
-        logger.warn('Example plugin variable is not provided (this is expected)');
-      }
-      return val;
-    }),
-});
+// Define the equivalent of __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-/**
- * Example HelloWorld action
- * This demonstrates the simplest possible action structure
- */
-/**
- * Action representing a hello world message.
- * @typedef {Object} Action
- * @property {string} name - The name of the action.
- * @property {string[]} similes - An array of related actions.
- * @property {string} description - A brief description of the action.
- * @property {Function} validate - Asynchronous function to validate the action.
- * @property {Function} handler - Asynchronous function to handle the action and generate a response.
- * @property {Object[]} examples - An array of example inputs and expected outputs for the action.
- */
-const helloWorldAction: Action = {
-  name: 'HELLO_WORLD',
-  similes: ['GREET', 'SAY_HELLO'],
-  description: 'Responds with a simple hello world message',
+// Resolve the path to the frontend distribution directory
+// Use the plugin's built location to find the frontend files (same level as the built JS)
+const frontendDist = path.resolve(__dirname, "frontend");
 
-  validate: async (
-    _runtime: IAgentRuntime,
-    _message: Memory,
-    _state: State | undefined
-  ): Promise<boolean> => {
-    // Always valid
-    return true;
-  },
+const frontPagePath = path.resolve(frontendDist, "index.html");
+const assetsPath = path.resolve(frontendDist, "assets");
 
-  handler: async (
-    _runtime: IAgentRuntime,
-    message: Memory,
-    _state: State | undefined,
-    _options: any,
-    callback?: HandlerCallback,
-    _responses?: Memory[]
-  ): Promise<ActionResult> => {
-    try {
-      logger.info('Handling HELLO_WORLD action');
+console.log("*** Using frontendDist:", frontendDist);
+console.log("*** frontPagePath", frontPagePath);
+console.log("*** assetsPath", assetsPath);
 
-      // Simple response content for callback
-      const responseContent: Content = {
-        text: 'hello world!',
-        actions: ['HELLO_WORLD'],
-        source: message.content.source,
-      };
 
-      // Call back with the hello world message if callback is provided
-      if (callback) {
-        await callback(responseContent);
-      }
 
-      // Return ActionResult
-      return {
-        text: 'hello world!',
-        success: true,
-        data: {
-          actions: ['HELLO_WORLD'],
-          source: message.content.source,
+import { updateAndRegisterPlugin, getCredentials } from "./utils";
+
+const plugin: Plugin = {
+  name: "connections",
+  description:
+    "Connection management plugin for Twitter authentication and other services",
+  dependencies: ["@elizaos/plugin-sql"],
+  schema,
+
+  async init(config: Record<string, string>, runtime: IAgentRuntime) {
+    console.log("Connections Plugin: Initializing...");
+    const credentials = await getCredentials(runtime, "twitter");
+    if (credentials) {
+      await updateAndRegisterPlugin(
+        runtime,
+        {
+          TWITTER_ACCESS_TOKEN: credentials.accessToken,
+          TWITTER_ACCESS_TOKEN_SECRET: credentials.accessTokenSecret,
         },
-      };
-    } catch (error) {
-      logger.error('Error in HELLO_WORLD action:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error : new Error(String(error)),
-      };
+        "@elizaos/plugin-twitter",
+      );
     }
-  },
-
-  examples: [
-    [
-      {
-        name: '{{name1}}',
-        content: {
-          text: 'Can you say hello?',
-        },
-      },
-      {
-        name: '{{name2}}',
-        content: {
-          text: 'hello world!',
-          actions: ['HELLO_WORLD'],
-        },
-      },
-    ],
-  ],
-};
-
-/**
- * Example Hello World Provider
- * This demonstrates the simplest possible provider implementation
- */
-const helloWorldProvider: Provider = {
-  name: 'HELLO_WORLD_PROVIDER',
-  description: 'A simple example provider',
-
-  get: async (
-    _runtime: IAgentRuntime,
-    _message: Memory,
-    _state: State | undefined
-  ): Promise<ProviderResult> => {
-    return {
-      text: 'I am a provider',
-      values: {},
-      data: {},
-    };
-  },
-};
-
-export class StarterService extends Service {
-  static serviceType = 'starter';
-  capabilityDescription =
-    'This is a starter service which is attached to the agent through the starter plugin.';
-  constructor(protected runtime: IAgentRuntime) {
-    super(runtime);
-  }
-
-  static async start(runtime: IAgentRuntime) {
-    logger.info(`*** Starting starter service - MODIFIED: ${new Date().toISOString()} ***`);
-    const service = new StarterService(runtime);
-    return service;
-  }
-
-  static async stop(runtime: IAgentRuntime) {
-    logger.info('*** TESTING DEV MODE - STOP MESSAGE CHANGED! ***');
-    // get the service from the runtime
-    const service = runtime.getService(StarterService.serviceType);
-    if (!service) {
-      throw new Error('Starter service not found');
-    }
-    service.stop();
-  }
-
-  async stop() {
-    logger.info('*** THIRD CHANGE - TESTING FILE WATCHING! ***');
-  }
-}
-
-export const starterPlugin: Plugin = {
-  name: 'plugin-con2',
-  description: 'Plugin starter for elizaOS',
-  config: {
-    EXAMPLE_PLUGIN_VARIABLE: process.env.EXAMPLE_PLUGIN_VARIABLE,
-  },
-  async init(config: Record<string, string>) {
-    logger.info('*** TESTING DEV MODE - PLUGIN MODIFIED AND RELOADED! ***');
-    try {
-      const validatedConfig = await configSchema.parseAsync(config);
-
-      // Set all environment variables at once
-      for (const [key, value] of Object.entries(validatedConfig)) {
-        if (value) process.env[key] = value;
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        throw new Error(
-          `Invalid plugin configuration: ${error.errors.map((e) => e.message).join(', ')}`
-        );
-      }
-      throw error;
-    }
-  },
-  models: {
-    [ModelType.TEXT_SMALL]: async (
-      _runtime,
-      { prompt, stopSequences = [] }: GenerateTextParams
-    ) => {
-      return 'Never gonna give you up, never gonna let you down, never gonna run around and desert you...';
-    },
-    [ModelType.TEXT_LARGE]: async (
-      _runtime,
-      {
-        prompt,
-        stopSequences = [],
-        maxTokens = 8192,
-        temperature = 0.7,
-        frequencyPenalty = 0.7,
-        presencePenalty = 0.7,
-      }: GenerateTextParams
-    ) => {
-      return 'Never gonna make you cry, never gonna say goodbye, never gonna tell a lie and hurt you...';
-    },
   },
   routes: [
+    // Frontend routes
     {
-      name: 'hello-world-route',
-      path: '/helloworld',
-      type: 'GET',
-      handler: async (_req: any, res: any) => {
-        // send a response
-        res.json({
-          message: 'Hello World!',
-        });
+      type: "GET",
+      path: "/panels/connections",
+      name: "Connections",
+      public: true,
+      handler: async (_req: any, res: any, runtime: IAgentRuntime) => {
+        const connectionsHtmlPath = path.resolve(frontendDist, "index.html");
+        console.log("*** Checking for HTML file at:", connectionsHtmlPath);
+        console.log("*** File exists:", fs.existsSync(connectionsHtmlPath));
+        if (fs.existsSync(connectionsHtmlPath)) {
+          let htmlContent = fs.readFileSync(connectionsHtmlPath, "utf-8");
+
+          // Inject the actual agent ID from the runtime
+          const agentId = runtime.agentId;
+          const config = {
+            agentId: agentId,
+            apiBase: `http://localhost:3000`, // This could be configurable
+          };
+
+          // Replace the test config with the actual config
+          htmlContent = htmlContent.replace(
+            /window\.ELIZA_CONFIG = \{[^}]+\};/,
+            `window.ELIZA_CONFIG = ${JSON.stringify(config)};`,
+          );
+
+          // Set headers to allow framing from ElizaOS dashboard
+          res.setHeader("Content-Type", "text/html");
+          res.setHeader("X-Frame-Options", "SAMEORIGIN");
+          res.setHeader("Content-Security-Policy", "frame-ancestors 'self' http://localhost:* https://localhost:*");
+          res.send(htmlContent);
+        } else {
+          res.status(404).send("Connections HTML file not found");
+        }
       },
     },
     {
-      name: 'current-time-route',
-      path: '/api/time',
-      type: 'GET',
-      handler: async (_req: any, res: any) => {
-        // Return current time in various formats
-        const now = new Date();
-        res.json({
-          timestamp: now.toISOString(),
-          unix: Math.floor(now.getTime() / 1000),
-          formatted: now.toLocaleString(),
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        });
+      type: "GET",
+      path: "/panels/connections/assets/*",
+      public: true,
+      handler: async (req: any, res: any, _runtime: IAgentRuntime) => {
+        const fullPath = req.path;
+        const assetRelativePath = fullPath.replace(/^\/api\/panels\/connections\/assets\//, "").replace(/^\/panels\/connections\/assets\//, "");
+        console.log("*** Connections assets - fullPath:", fullPath);
+        console.log("*** Connections assets - assetRelativePath:", assetRelativePath);
+        if (!assetRelativePath) {
+          return res.status(400).send("Invalid asset path");
+        }
+
+        const filePath = path.resolve(assetsPath, assetRelativePath);
+
+        console.log("*** Connections assets - filePath:", filePath);
+        if (!filePath.startsWith(assetsPath)) {
+          return res.status(403).send("Forbidden");
+        }
+
+        if (fs.existsSync(filePath)) {
+          // Set headers to allow assets to be loaded in frames
+          res.setHeader("X-Frame-Options", "SAMEORIGIN");
+          res.setHeader("Content-Security-Policy", "frame-ancestors 'self' http://localhost:* https://localhost:*");
+          res.sendFile(filePath);
+        } else {
+          res.status(404).send("Asset not found");
+        }
       },
     },
+    {
+      type: "GET", 
+      path: "/assets/*",
+      public: true,
+      handler: async (req: any, res: any, _runtime: IAgentRuntime) => {
+        const fullPath = req.path;
+        const assetRelativePath = fullPath.replace(/^\/api\/assets\//, "").replace(/^\/assets\//, "");
+        console.log("*** Direct assets - fullPath:", fullPath);
+        console.log("*** Direct assets - assetRelativePath:", assetRelativePath);
+        if (!assetRelativePath) {
+          return res.status(400).send("Invalid asset path");
+        }
+
+        const filePath = path.resolve(assetsPath, assetRelativePath);
+
+        console.log("*** Direct assets - filePath:", filePath);
+        if (!filePath.startsWith(assetsPath)) {
+          return res.status(403).send("Forbidden");
+        }
+
+        if (fs.existsSync(filePath)) {
+          // Set headers to allow assets to be loaded in frames
+          res.setHeader("X-Frame-Options", "SAMEORIGIN");
+          res.setHeader("Content-Security-Policy", "frame-ancestors 'self' http://localhost:* https://localhost:*");
+          res.sendFile(filePath);
+        } else {
+          res.status(404).send("Asset not found");
+        }
+      },
+    },
+    // All connection and authentication routes
+    ...routes.map((route) => ({
+      ...route,
+      handler: async (req: any, res: any, runtime: IAgentRuntime) => {
+        req.runtime = runtime;
+        return route.handler(req, res);
+      },
+    })),
   ],
-  events: {
-    MESSAGE_RECEIVED: [
-      async (params) => {
-        logger.debug('MESSAGE_RECEIVED event received');
-        // print the keys
-        logger.debug(Object.keys(params));
-      },
-    ],
-    VOICE_MESSAGE_RECEIVED: [
-      async (params) => {
-        logger.debug('VOICE_MESSAGE_RECEIVED event received');
-        // print the keys
-        logger.debug(Object.keys(params));
-      },
-    ],
-    WORLD_CONNECTED: [
-      async (params) => {
-        logger.debug('WORLD_CONNECTED event received');
-        // print the keys
-        logger.debug(Object.keys(params));
-      },
-    ],
-    WORLD_JOINED: [
-      async (params) => {
-        logger.debug('WORLD_JOINED event received');
-        // print the keys
-        logger.debug(Object.keys(params));
-      },
-    ],
-  },
-  services: [StarterService],
-  actions: [helloWorldAction],
-  providers: [helloWorldProvider],
-  tests: [StarterPluginTestSuite],
-  // dependencies: ['@elizaos/plugin-knowledge'], <--- plugin dependencies go here (if requires another plugin)
+  services: [DatabaseService, AuthService],
 };
 
-export default starterPlugin;
+export default plugin;

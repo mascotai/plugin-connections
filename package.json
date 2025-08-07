@@ -1,5 +1,5 @@
 {
-  "name": "plugin-connections",
+  "name": "@mascotai/plugin-connections",
   "version": "1.0.0",
   "description": "Connection management plugin for Twitter authentication and other services",
   "repository": {
@@ -74,7 +74,7 @@
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",
-    "vite": "^7.0.5"
+    "vite": "^7.0.6"
   },
   "packageType": "plugin",
   "platform": "node",
